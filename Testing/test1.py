@@ -1,59 +1,40 @@
 import asyncio
-from bleak import BleakClient, BleakScanner
+from bleak import BleakScanner
+import socket
+import json
 
+MINDWAVE_NAME = "MindWave Mobile"
 
-async def scan_and_return_address():
-    device_name = "MindWave Mobile"
+async def check_paired_and_connected():
     devices = await BleakScanner.discover()
-
     for device in devices:
-        print(f"Found device: {device.name}")
-        if device.name == device_name:
-            print(f"Found {device_name} at address {device.address}")
+        if MINDWAVE_NAME in device.name:
+            print(f"Found paired device: {device.name} at {device.address}")
             return device.address
-                # Add your code here to interact with the Mindwave Mobile 2
+    return None
+
+async def connect_to_tgc(address, host='127.0.0.1', port=13854):
+    if address:
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                sock.connect((host, port))
+                print(f"Connected to ThinkGear Connector using {address}.")
+                command = json.dumps({"enableRawOutput": True, "format": "Json"})
+                sock.sendall(command.encode('utf-8'))
+
+                data = sock.recv(1024)
+                if data:
+                    print("Data received from TGC:", data.decode())
+                else:
+                    print("No data received. Check the MindWave Mobile connection.")
+        except Exception as e:
+            print(f"Error connecting to ThinkGear Connector: {e}")
     else:
-        print(f"{device_name} not found")
-        return None
-    
-MINDWAVE_ADDRESS = None 
+        print("MindWave Mobile device not found or not connected.")
 
-async def connect_and_listen(address):
-    CHARACTERISTIC_UUID =  None
-    async with BleakClient(address) as client:
-        if await client.is_connected():
-            print("Connected to the Mindwave Mobile 2")
-            services = await client.get_services()
-
-            for service in services:
-                for char in service.characteristics:
-                    print(f"  Characteristic {char} -> {char.uuid}")
-                    if "EEG" in char.description:
-                        print(f"This might be the EEG raw data characteristic (UUID: {char.uuid})")
-                        CHARACTERISTIC_UUID = char.uuid
-                 
-            if CHARACTERISTIC_UUID is None:
-                print("No EEG characteristic found")
-                return
-            else:
-            
-                def callback(sender, data):
-                    # Parse the incoming data
-                    # Mindwave Mobile 2 uses a specific format that you will need to decode
-                    print(f"Raw data: {data}")
-
-                await client.start_notify(CHARACTERISTIC_UUID, callback)
-
-                # Keep the script running to continue receiving data
-                await asyncio.sleep(300)  # Run for 5 minutes, adjust as necessary
-        else:
-            print("Failed to connect")
-
+async def main():
+    paired_address = await check_paired_and_connected()
+    await connect_to_tgc(paired_address)
 
 if __name__ == "__main__":
-    if MINDWAVE_ADDRESS == None:
-        MINDWAVE_ADDRESS = asyncio.run(scan_and_return_address())
-
-    if MINDWAVE_ADDRESS:
-        continue_reading = True
-        asyncio.run(connect_and_listen(MINDWAVE_ADDRESS))
+    asyncio.run(main())
