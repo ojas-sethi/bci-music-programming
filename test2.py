@@ -5,7 +5,7 @@ import json
 import time
 from telnetlib import Telnet
 
-# Initializing the arrays required to store the data.
+# Initializing the columns for the CSV file
 columns = [
     'time', 'attention', 'meditation', 'delta', 'theta', 'lowAlpha', 'highAlpha',
     'lowBeta', 'highBeta', 'lowGamma', 'highGamma', 'blinkStrength', 'poorSignalLevel'
@@ -32,35 +32,37 @@ try:
             try:
                 # Parse JSON and extract data
                 json_data = json.loads(decoded_line)
-                esense = json_data['eSense']
-                eeg_power = json_data['eegPower']
-                poor_signal_level = json_data['poorSignalLevel']
                 
-                # Extracting individual values
-                attention = esense['attention']
-                meditation = esense['meditation']
-                delta = eeg_power['delta']
-                theta = eeg_power['theta']
-                low_alpha = eeg_power['lowAlpha']
-                high_alpha = eeg_power['highAlpha']
-                low_beta = eeg_power['lowBeta']
-                high_beta = eeg_power['highBeta']
-                low_gamma = eeg_power['lowGamma']
-                high_gamma = eeg_power['highGamma']
-                
-                # Current time since the script start
-                current_time = time.perf_counter() - start
-                
-                # Storing data
-                row_data = [
-                    str(current_time), str(attention), str(meditation), str(delta),
-                    str(theta), str(low_alpha), str(high_alpha), str(low_beta),
-                    str(high_beta), str(low_gamma), str(high_gamma), str('0'),  # Assuming blinkStrength is not provided
-                    str(poor_signal_level)
-                ]
-                
-                # Writing data to the CSV file
-                file.write(','.join(row_data) + '\n')
+                if "eSense" in json_data and "eegPower" in json_data:
+                    esense = json_data['eSense']
+                    eeg_power = json_data['eegPower']
+                    poor_signal_level = json_data['poorSignalLevel']
+                    
+                    # Extracting individual values
+                    attention = esense['attention']
+                    meditation = esense['meditation']
+                    delta = eeg_power['delta']
+                    theta = eeg_power['theta']
+                    low_alpha = eeg_power['lowAlpha']
+                    high_alpha = eeg_power['highAlpha']
+                    low_beta = eeg_power['lowBeta']
+                    high_beta = eeg_power['highBeta']
+                    low_gamma = eeg_power['lowGamma']
+                    high_gamma = eeg_power['highGamma']
+                    
+                    # Current time since the script start
+                    current_time = time.perf_counter() - start
+                    
+                    # Storing data
+                    row_data = [
+                        str(current_time), str(attention), str(meditation), str(delta),
+                        str(theta), str(low_alpha), str(high_alpha), str(low_beta),
+                        str(high_beta), str(low_gamma), str(high_gamma), str('0'),  # Assuming blinkStrength is not provided
+                        str(poor_signal_level)
+                    ]
+                    
+                    # Writing data to the CSV file
+                    file.write(','.join(row_data) + '\n')
                 
                 # Optionally, sleep to prevent too much data from being written too quickly
                 time.sleep(1)
