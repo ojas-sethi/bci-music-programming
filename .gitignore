@@ -1,2 +1,4 @@
-/venv
-/Testing/node_modules
+.DS_Store
+/venv/*
+/Data/*
+/Plots/*
