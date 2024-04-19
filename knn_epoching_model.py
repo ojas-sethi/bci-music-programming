@@ -35,6 +35,7 @@ y = data['label'].round().astype(int)  # Ensuring labels are integers
 # Scaling
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
+joblib.dump(scaler, 'scaler.pkl')
 
 # SMOTE for balancing the dataset
 smote = SMOTE()

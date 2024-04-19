@@ -13,8 +13,8 @@ class EEGEmotionRecognitionGUI:
         master.geometry("400x300")  # Window size
 
         # Load model and scaler
-        self.model = joblib.load('emotion_recognition_model.pkl')
-        self.scaler = StandardScaler()  # Assuming model was trained with data scaled this way
+        self.model = joblib.load('knn_epoched_model.pkl')
+        self.scaler = joblib.load('scaler.pkl')  # Assuming model was trained with data scaled this way
 
         self.is_recognizing = False
         self.tn = None
