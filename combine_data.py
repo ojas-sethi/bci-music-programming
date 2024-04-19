@@ -1,15 +1,26 @@
 import pandas as pd
 
-negative_data = pd.read_csv('NegativeTestData.csv')
-neutral_data = pd.read_csv('NeutralTestData.csv')
-positive_data = pd.read_csv('PositiveTestData.csv')
+# List of filenames to combine
+filenames = [
+    'Data/CombinedTestData.csv', 'Data/NikhilNegative1.csv', 'Data/NikhilNegative2.csv',
+    'Data/NikhilNeutral.csv', 'Data/NikhilPositive1.csv', 'Data/NikhilPositive2.csv',
+    'Data/NitigyaNegative.csv', 'Data/NitigyaPositive.csv', 'Data/NitigyaNeutral.csv'
+]
 
-negative_data['Label'] = -1
-neutral_data['Label'] = 0
-positive_data['Label'] = 1
+# Create a list to store the data from each file
+dataframes = []
 
-combined_data = pd.concat([negative_data, neutral_data, positive_data], ignore_index=True)
+# Loop through the list of filenames
+for filename in filenames:
+    # Read each file into a DataFrame
+    df = pd.read_csv(filename)
+    # Append the DataFrame to the list
+    dataframes.append(df)
 
-combined_data.to_csv('CombinedTestData.csv', index=False)
+# Concatenate all DataFrames into a single DataFrame
+combined_df = pd.concat(dataframes, ignore_index=True)
 
-print("Data combined and saved successfully.")
+# Save the combined DataFrame to a new CSV file
+combined_df.to_csv('combined_data.csv', index=False)
+
+print("All files have been successfully combined into combined_data.csv")
