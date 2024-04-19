@@ -21,7 +21,7 @@ X_resampled, y_resampled = smote.fit_resample(X_scaled, y)
 
 X_train, X_test, y_train, y_test = train_test_split(X_resampled, y_resampled, test_size=0.20, random_state=42)
 
-knn = KNeighborsClassifier(n_neighbors=9, weights='distance')
+knn = KNeighborsClassifier(n_neighbors=3, weights='distance')
 bagging_model = BaggingClassifier(knn, n_estimators=50, random_state=42)
 bagging_model.fit(X_train, y_train)
 
